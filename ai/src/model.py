@@ -1,3 +1,5 @@
+import joblib
+from pathlib import Path
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     accuracy_score,
@@ -19,6 +21,20 @@ def train_model(X_train, y_train):
 
     return model
 
+def save_model(model):
+    """Save the trained model to the models directory."""
+
+    project_root = Path(__file__).resolve().parent.parent
+
+    model_directory = project_root / "models"
+    model_directory.mkdir(parents=True, exist_ok=True)
+
+    model_path = model_directory / "failure_prediction_model.joblib"
+
+    joblib.dump(model, model_path)
+
+    print(f"\nModel saved to: {model_path}")
+
 
 if __name__ == "__main__":
     data = load_data()
@@ -28,6 +44,8 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = split_data(X, y)
 
     model = train_model(X_train, y_train)
+
+    save_model(model)
 
     predictions = model.predict(X_test)
     accuracy = accuracy_score(y_test, predictions)
