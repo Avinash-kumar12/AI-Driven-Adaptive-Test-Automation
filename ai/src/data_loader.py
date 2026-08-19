@@ -1,4 +1,5 @@
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 
 DATA_PATH = "data/raw/test_execution_history.csv"
@@ -41,14 +42,38 @@ def prepare_features(df):
 
     return X, y
 
+def split_data(X, y):
+    """Split data into training and testing sets."""
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.2,
+        random_state=42,
+        stratify=y
+    )
+
+    return X_train, X_test, y_train, y_test
 
 if __name__ == "__main__":
     data = load_data()
 
     X, y = prepare_features(data)
 
-    print("\nFeatures (X):")
-    print(X)
+    X_train, X_test, y_train, y_test = split_data(X, y)
 
-    print("\nTarget (y):")
-    print(y)
+    print("\nTraining features:")
+    print(X_train)
+
+    print("\nTesting features:")
+    print(X_test)
+
+    print("\nTraining target:")
+    print(y_train)
+
+    print("\nTesting target:")
+    print(y_test)
+
+    print("\nDataset split:")
+    print(f"Training records: {len(X_train)}")
+    print(f"Testing records: {len(X_test)}")
