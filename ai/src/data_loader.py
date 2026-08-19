@@ -1,8 +1,11 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
+from pathlib import Path
 
-DATA_PATH = "data/raw/test_execution_history.csv"
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_PATH = PROJECT_ROOT / "data" / "raw" / "test_execution_history.csv"
 
 
 def load_data():
