@@ -44,9 +44,25 @@ describe("Healenium Driver Connection", () => {
         );
 
         const selected = await page.getSelectedOptionText({
-    id: "select_item"
-});
+            id: "select_item"
+        });
 
-expect(selected).toBe("Item 1");
+        expect(selected).toBe("Item 1");
     });
+
+    it("should verify element visibility using BasePage", async () => {
+        driver = await createDriver();
+        page = new BasePage(driver);
+
+        await page.navigateTo(
+            "https://healenium.github.io/healenium-test-env/index.html"
+        );
+
+        const isVisible = await page.isDisplayed({
+            id: "select_item"
+        });
+
+        expect(isVisible).toBeTrue();
+    });
+
 });

@@ -26,6 +26,10 @@ export class BasePage {
         return await element.getText();
     }
 
+    async isDisplayed(locator) {
+    const element = await this.findElement(locator);
+    return await element.isDisplayed();
+    }
     async getTitle() {
         return await this.driver.getTitle();
     }
