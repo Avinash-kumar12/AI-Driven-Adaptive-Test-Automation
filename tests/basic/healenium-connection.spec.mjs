@@ -29,4 +29,24 @@ describe("Healenium Driver Connection", () => {
 
         expect(title).toBe("Healenium Test");
     });
+
+    it("should select an item using BasePage", async () => {
+        driver = await createDriver();
+        page = new BasePage(driver);
+
+        await page.navigateTo(
+            "https://healenium.github.io/healenium-test-env/index.html"
+        );
+
+        await page.selectByVisibleText(
+            { id: "select_item" },
+            "Item 1"
+        );
+
+        const selected = await page.getSelectedOptionText({
+    id: "select_item"
+});
+
+expect(selected).toBe("Item 1");
+    });
 });

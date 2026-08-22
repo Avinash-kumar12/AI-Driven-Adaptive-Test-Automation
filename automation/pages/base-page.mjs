@@ -1,3 +1,6 @@
+import { Select } from "selenium-webdriver/lib/select.js";
+import { waitForElement } from "../utils/wait-utils.mjs";
+
 export class BasePage {
 
     constructor(driver) {
@@ -5,7 +8,7 @@ export class BasePage {
     }
 
     async findElement(locator) {
-        return await this.driver.findElement(locator);
+        return await waitForElement(this.driver, locator);
     }
 
     async click(locator) {
@@ -29,5 +32,20 @@ export class BasePage {
 
     async navigateTo(url) {
         await this.driver.get(url);
+    }
+
+    async selectByVisibleText(locator, text) {
+        const element = await this.findElement(locator);
+        const select = new Select(element);
+
+        await select.selectByVisibleText(text);
+    }
+
+    async getSelectedOptionText(locator) {
+        const element = await this.findElement(locator);
+        const select = new Select(element);
+        const selectedOption = await select.getFirstSelectedOption();
+
+        return await selectedOption.getText();
     }
 }
