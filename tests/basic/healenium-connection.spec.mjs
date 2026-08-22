@@ -65,4 +65,32 @@ describe("Healenium Driver Connection", () => {
         expect(isVisible).toBeTrue();
     });
 
+    it("should verify Healenium healed locator", async () => {
+    driver = await createDriver();
+    page = new BasePage(driver);
+
+    await page.navigateTo(
+        "https://healenium.github.io/healenium-test-env/index.html"
+    );
+
+    const original = await page.findElement({
+        id: "select_item"
+    });
+
+    expect(await original.getTagName()).toBe("select");
+
+    const changeButton = await page.findElement({
+        xpath: "//button[contains(normalize-space(.), 'Change locators')]"
+    });
+
+    await changeButton.click();
+
+    const healed = await page.findElement({
+        css: "select#select_item_NewId"
+    });
+
+    expect(await healed.getTagName()).toBe("select");
+    expect(await healed.getAttribute("id"))
+        .toBe("select_item_NewId");
+    });
 });
