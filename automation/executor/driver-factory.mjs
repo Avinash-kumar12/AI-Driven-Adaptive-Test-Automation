@@ -1,12 +1,16 @@
 import { Builder } from "selenium-webdriver";
-
-const HEALENIUM_URL = "http://localhost:8085";
+import config from "../config/framework-config.mjs";
 
 export async function createDriver() {
-    const driver = await new Builder()
-        .forBrowser("chrome")
-        .usingServer(HEALENIUM_URL)
-        .build();
+    const builder = new Builder()
+        .forBrowser(config.browser)
+        .usingServer(config.healeniumUrl);
 
-    return driver;
+    if (config.headless && config.browser === "chrome") {
+        builder.setChromeOptions({
+            args: ["--headless=new"]
+        });
+    }
+
+    return await builder.build();
 }

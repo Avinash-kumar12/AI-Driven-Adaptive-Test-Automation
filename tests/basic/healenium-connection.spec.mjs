@@ -24,6 +24,6 @@ describe("Healenium Driver Connection", () => {
 
         const title = await driver.getTitle();
 
-        expect(title).toBeTruthy();
+        expect(title).toBe("Healenium Test");
     });
 });
