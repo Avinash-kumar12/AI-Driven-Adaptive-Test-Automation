@@ -1,5 +1,5 @@
 from predict import load_model, prepare_input, predict_failure, classify_risk
-
+from prediction_output import save_predictions
 
 def prioritize_test_suite(test_cases):
     """Predict and prioritize a collection of test cases."""
@@ -84,6 +84,8 @@ if __name__ == "__main__":
     ]
 
     results = prioritize_test_suite(test_cases)
+
+    save_predictions(results)
 
     print("\nPrioritized Test Suite:")
 
