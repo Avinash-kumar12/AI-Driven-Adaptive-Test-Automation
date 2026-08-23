@@ -7,9 +7,8 @@ const PORT = 3000;
 app.use(express.json());
 
 const overviewRouter = require("./routes/overview");
-
-app.use("/api/overview", overviewRouter);
-
+const testsRouter = require("./routes/tests");
+app.use("/api/tests", testsRouter);
 app.get("/", (req, res) => {
     res.json({
         message: "AI-Driven Adaptive Test Automation Backend is running"
