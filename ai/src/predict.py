@@ -76,33 +76,111 @@ def classify_risk(probability):
 
     return "LOW"
 
+def prioritize_tests(model, test_cases):
+    """Predict failure risk and prioritize multiple test cases."""
+
+    results = []
+
+    for test_case in test_cases:
+
+        test_id = test_case["test_id"]
+
+        features = prepare_input(
+            execution_count=test_case["execution_count"],
+            failure_count=test_case["failure_count"],
+            avg_duration=test_case["avg_duration"],
+            recent_failures=test_case["recent_failures"],
+            healed_count=test_case["healed_count"],
+            last_status=test_case["last_status"],
+        )
+
+        prediction, probability = predict_failure(
+            model,
+            features
+        )
+
+        risk_level = classify_risk(probability)
+
+        results.append({
+            "test_id": test_id,
+            "failure_probability": probability,
+            "risk_level": risk_level,
+            "prediction": prediction,
+        })
+
+    results.sort(
+        key=lambda result: result["failure_probability"],
+        reverse=True
+    )
+
+    return results
+
 
 if __name__ == "__main__":
 
     model = load_model()
 
-    test_case = prepare_input(
-        execution_count=50,
-        failure_count=8,
-        avg_duration=5.5,
-        recent_failures=3,
-        healed_count=2,
-        last_status="failed",
-    )
+    test_cases = [
+        {
+            "test_id": "TC001",
+            "execution_count": 50,
+            "failure_count": 2,
+            "avg_duration": 2.4,
+            "recent_failures": 0,
+            "healed_count": 0,
+            "last_status": "passed",
+        },
+        {
+            "test_id": "TC002",
+            "execution_count": 45,
+            "failure_count": 12,
+            "avg_duration": 5.8,
+            "recent_failures": 3,
+            "healed_count": 4,
+            "last_status": "failed",
+        },
+        {
+            "test_id": "TC003",
+            "execution_count": 80,
+            "failure_count": 1,
+            "avg_duration": 1.9,
+            "recent_failures": 0,
+            "healed_count": 0,
+            "last_status": "passed",
+        },
+        {
+            "test_id": "TC004",
+            "execution_count": 35,
+            "failure_count": 8,
+            "avg_duration": 6.2,
+            "recent_failures": 2,
+            "healed_count": 3,
+            "last_status": "failed",
+        },
+        {
+            "test_id": "TC005",
+            "execution_count": 60,
+            "failure_count": 4,
+            "avg_duration": 3.1,
+            "recent_failures": 1,
+            "healed_count": 1,
+            "last_status": "passed",
+        },
+    ]
 
-    prediction, probability = predict_failure(
+    results = prioritize_tests(
         model,
-        test_case
-    )
-    risk_level = classify_risk(probability)
-
-    
-    print("\nPrediction:")
-    print(
-        "Likely to fail"
-        if prediction == 1
-        else "Likely to pass"
+        test_cases
     )
 
-    print(f"Failure probability: {probability:.2%}")
-    print(f"Risk level: {risk_level}")
+    print("\nTest Prioritization:")
+
+    for priority, result in enumerate(results, start=1):
+
+        print(
+            f"{priority}. "
+            f"{result['test_id']} | "
+            f"Failure probability: "
+            f"{result['failure_probability']:.2%} | "
+            f"Risk: {result['risk_level']}"
+        )
