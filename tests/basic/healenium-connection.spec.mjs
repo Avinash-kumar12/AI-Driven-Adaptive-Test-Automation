@@ -65,7 +65,7 @@ describe("Healenium Driver Connection", () => {
         expect(isVisible).toBeTrue();
     });
 
-    it("should verify Healenium healed locator", async () => {
+    it("should automatically heal a changed locator through Healenium", async () => {
     driver = await createDriver();
     page = new BasePage(driver);
 
@@ -73,24 +73,31 @@ describe("Healenium Driver Connection", () => {
         "https://healenium.github.io/healenium-test-env/index.html"
     );
 
+    // First establish the original locator in Healenium history
     const original = await page.findElement({
         id: "select_item"
     });
 
     expect(await original.getTagName()).toBe("select");
 
+    // Change the locator in the application
     const changeButton = await page.findElement({
         xpath: "//button[contains(normalize-space(.), 'Change locators')]"
     });
 
     await changeButton.click();
 
+    // IMPORTANT:
+    // Ask Healenium to resolve the OLD locator again.
+    // We intentionally DO NOT use select_item_NewId here.
     const healed = await page.findElement({
-        css: "select#select_item_NewId"
+        id: "select_item"
     });
 
     expect(await healed.getTagName()).toBe("select");
-    expect(await healed.getAttribute("id"))
-        .toBe("select_item_NewId");
+
+    const healedId = await healed.getAttribute("id");
+
+    expect(healedId).toBe("select_item_NewId");
     });
 });
