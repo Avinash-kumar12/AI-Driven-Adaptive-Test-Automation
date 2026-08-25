@@ -1,0 +1,28 @@
+{
+  "execution_count": 2,
+  "failure_count": 0,
+  "recent_failures": [],
+  "healed_count": 1,
+  "avg_duration": 8.795,
+  "last_status": "passed",
+  "tests": [
+    {
+      "testId": "TC001",
+      "testName": "Healenium browser session",
+      "status": "passed",
+      "duration": 4.558,
+      "healed": false,
+      "healingScore": null,
+      "timestamp": "2026-08-24T17:11:48.060Z"
+    },
+    {
+      "testId": "TC004",
+      "testName": "Automatic locator healing",
+      "status": "passed",
+      "duration": 13.032,
+      "healed": true,
+      "healingScore": 0.9091036414565826,
+      "timestamp": "2026-08-24T17:11:48.069Z"
+    }
+  ]
+}
