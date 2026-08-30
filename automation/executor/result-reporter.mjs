@@ -1,5 +1,9 @@
 import { recordTestResult } from "../results/resultCollector.mjs";
-
+import { getTestMetadata } from "../utils/test-metadata.mjs";
+import {
+    getHealingState,
+    resetHealingState
+} from "../utils/healing-context.mjs";
 export function createResultReporter() {
     const startedAt = new Map();
 
@@ -20,20 +24,23 @@ export function createResultReporter() {
                 result.status === "failed" ||
                 result.failedExpectations?.length > 0;
 
-            const healed =
-                result.fullName
-                    ?.toLowerCase()
-                    .includes("heal");
+            const healingState = getHealingState();
 
-            recordTestResult({
-                testId: result.id,
-                testName: result.fullName,
-                status: failed ? "failed" : result.status,
-                duration,
-                healed,
-                healingScore: null
-            });
+const metadata = getTestMetadata(result.fullName);
 
+recordTestResult({
+    testId: metadata.testId ?? result.id,
+    testName: result.fullName,
+    status: failed ? "failed" : result.status,
+    duration,
+    healed: healingState.healed,
+    healingScore: healingState.healingScore,
+    module: metadata.module ?? null,
+    scenario: metadata.scenario ?? null,
+    locatorType: metadata.locatorType ?? null,
+    healingExpected: metadata.healingExpected ?? false
+});
+resetHealingState();
             startedAt.delete(result.id);
         },
 

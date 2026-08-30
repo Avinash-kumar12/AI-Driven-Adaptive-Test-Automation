@@ -1,7 +1,7 @@
-import { createResultReporter } from "../../executor/result-reporter.mjs";
+import { createResultReporter } from "./automation/executor/result-reporter.mjs";
 
 export default {
-    spec_dir: "../../tests",
+    spec_dir: "tests",
 
     spec_files: [
         "**/*[sS]pec.?(m)js"

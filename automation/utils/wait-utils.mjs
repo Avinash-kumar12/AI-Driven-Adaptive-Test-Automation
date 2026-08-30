@@ -1,4 +1,4 @@
-import { until, By } from "selenium-webdriver";
+import { until } from "selenium-webdriver";
 
 export async function waitForElement(driver, locator, timeout = 10000) {
     try {
@@ -7,8 +7,6 @@ export async function waitForElement(driver, locator, timeout = 10000) {
             timeout
         );
     } catch (error) {
-        // Give Healenium one final direct lookup opportunity
-        // using the original locator.
         try {
             return await driver.findElement(locator);
         } catch {
