@@ -6,3 +6,6 @@ __pycache__/
 *.pyc
 dist/
 build/
+# Generated AI prediction outputs
+ai/data/processed/*.json
+automation/results/
