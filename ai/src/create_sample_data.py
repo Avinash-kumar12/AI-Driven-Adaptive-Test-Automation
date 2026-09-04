@@ -34,50 +34,61 @@ def generate_test_history(records_per_test=100):
 
     for test_id in TEST_IDS:
 
+        # Each test gets a different underlying failure tendency.
+        test_failure_rate = random.uniform(0.15, 0.60)
+
         for _ in range(records_per_test):
 
-            # Create either a low-risk or high-risk execution.
-            high_risk = random.random() < 0.5
+            # Number of previous executions.
+            execution_count = random.randint(10, 100)
 
-            if high_risk:
-                failure_count = random.randint(6, 15)
-                recent_failures = random.randint(2, 5)
-                healed_count = random.randint(2, 6)
+            # Number of failures among those previous executions.
+            failure_count = int(
+                execution_count * test_failure_rate
+            )
 
-                last_status = random.choice([
-                    "failed",
-                    "failed",
-                    "passed",
-                ])
+            # Number of failures in the recent execution window.
+            recent_failures = min(
+                random.randint(0, 5),
+                failure_count
+            )
 
+            # Number of healing events.
+            healed_count = min(
+                random.randint(0, 6),
+                failure_count
+            )
+
+            # Unstable tests tend to take longer.
+            if failure_count >= 8:
                 avg_duration = round(
                     random.uniform(4.0, 7.5),
                     2
                 )
-
             else:
-                failure_count = random.randint(0, 5)
-                recent_failures = random.randint(0, 2)
-                healed_count = random.randint(0, 2)
-
-                last_status = random.choice([
-                    "passed",
-                    "passed",
-                    "failed",
-                ])
-
                 avg_duration = round(
                     random.uniform(1.0, 5.0),
                     2
                 )
 
-            execution_count = random.randint(10, 100)
+            # Most recent execution status.
+            last_status = random.choice([
+                "passed",
+                "passed",
+                "failed",
+            ])
 
-            # High-risk executions normally fail.
-            next_run_failed = 1 if high_risk else 0
+            # Calculate a risk score for the next execution.
+            risk_score = (
+                (failure_count / max(execution_count, 1)) * 0.55
+                + (recent_failures / 5) * 0.25
+                + (healed_count / 6) * 0.10
+                + (1 if last_status == "failed" else 0) * 0.10
+            )
 
-            # Add some randomness so the model
-            # does not learn a perfect rule.
+            next_run_failed = 1 if risk_score >= 0.40 else 0
+
+            # Add noise so the model does not learn a perfect rule.
             if random.random() < 0.10:
                 next_run_failed = 1 - next_run_failed
 
@@ -132,4 +143,17 @@ if __name__ == "__main__":
         df["next_run_failed"]
         .value_counts(normalize=True)
         .round(3)
+    )
+
+    print("\nFeature ranges:")
+    print(
+        df[
+            [
+                "execution_count",
+                "failure_count",
+                "avg_duration",
+                "recent_failures",
+                "healed_count",
+            ]
+        ].describe()
     )

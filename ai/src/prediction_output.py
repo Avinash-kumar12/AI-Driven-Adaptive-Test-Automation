@@ -49,3 +49,27 @@ def save_predictions(results):
         )
 
     print(f"Predictions saved to: {OUTPUT_PATH}")
+
+def load_prioritized_tests():
+    """Load AI-prioritized tests in priority order."""
+
+    if not OUTPUT_PATH.exists():
+        raise FileNotFoundError(
+            f"Prioritized test file not found: {OUTPUT_PATH}"
+        )
+
+    with open(OUTPUT_PATH, "r", encoding="utf-8") as file:
+        data = json.load(file)
+
+    tests = data.get("tests", [])
+
+    tests.sort(
+        key=lambda test: test["priority"]
+    )
+
+    return tests
+
+def get_prioritized_test_ids():
+    """Return test IDs in AI-prioritized execution order."""
+    tests = load_prioritized_tests()
+    return [test["test_id"] for test in tests]

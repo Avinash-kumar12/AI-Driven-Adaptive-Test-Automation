@@ -1,5 +1,7 @@
 from predict import load_model, prepare_input, predict_failure, classify_risk
 from prediction_output import save_predictions
+from feature_builder import build_features
+
 
 def prioritize_test_suite(test_cases):
     """Predict and prioritize a collection of test cases."""
@@ -27,9 +29,9 @@ def prioritize_test_suite(test_cases):
 
         results.append({
             "test_id": test_case["test_id"],
-            "failure_probability": probability,
+            "failure_probability": float(probability),
             "risk_level": risk_level,
-            "prediction": prediction,
+            "prediction": int(prediction),
         })
 
     results.sort(
@@ -42,52 +44,23 @@ def prioritize_test_suite(test_cases):
 
     return results
 
+
 if __name__ == "__main__":
 
-    test_cases = [
-        {
-            "test_id": "TC001",
-            "execution_count": 50,
-            "failure_count": 2,
-            "avg_duration": 2.4,
-            "recent_failures": 0,
-            "healed_count": 0,
-            "last_status": "passed",
-        },
-        {
-            "test_id": "TC002",
-            "execution_count": 45,
-            "failure_count": 12,
-            "avg_duration": 5.8,
-            "recent_failures": 3,
-            "healed_count": 4,
-            "last_status": "failed",
-        },
-        {
-            "test_id": "TC003",
-            "execution_count": 80,
-            "failure_count": 1,
-            "avg_duration": 1.9,
-            "recent_failures": 0,
-            "healed_count": 0,
-            "last_status": "passed",
-        },
-        {
-            "test_id": "TC004",
-            "execution_count": 35,
-            "failure_count": 8,
-            "avg_duration": 6.2,
-            "recent_failures": 2,
-            "healed_count": 3,
-            "last_status": "failed",
-        },
-    ]
+    # Build features from the latest automation results
+    feature_df = build_features()
 
+    # Convert DataFrame records into the format expected
+    # by prioritize_test_suite()
+    test_cases = feature_df.to_dict("records")
+
+    # Predict failure risk and prioritize the tests
     results = prioritize_test_suite(test_cases)
 
+    # Save predictions to JSON
     save_predictions(results)
 
-    print("\nPrioritized Test Suite:")
+    print("\nAI-Predicted Test Prioritization:")
 
     for result in results:
         print(

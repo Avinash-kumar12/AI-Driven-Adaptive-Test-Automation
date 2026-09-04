@@ -15,15 +15,11 @@ FEATURE_COLUMNS = [
 
 
 def build_features():
-    """Build ML features for the current automation test results."""
+    """Build model features from historical and current execution data."""
 
     historical_data = load_data()
-
     execution_data = load_execution_results()
-
-    current_tests = convert_to_test_records(
-        execution_data
-    )
+    current_tests = convert_to_test_records(execution_data)
 
     feature_records = []
 
@@ -31,44 +27,39 @@ def build_features():
 
         test_id = test["test_id"]
 
-        # Get historical records for this specific test.
         history = historical_data[
             historical_data["test_id"] == test_id
         ]
 
         if history.empty:
-            print(
-                f"Warning: No historical data found for {test_id}"
-            )
+            print(f"Warning: No historical data found for {test_id}")
             continue
 
-        # Historical execution count.
         execution_count = len(history)
 
-        # Number of historical failures.
         failure_count = int(
             history["next_run_failed"].sum()
         )
 
-        # Historical average duration.
         avg_duration = round(
             history["avg_duration"].mean(),
             3
         )
 
-        # Recent failures.
         recent_history = history.tail(5)
 
         recent_failures = int(
             recent_history["next_run_failed"].sum()
         )
 
-        # Historical healing count.
-        healed_count = int(
-            history["healed_count"].sum()
+        # Use the average healing count so the feature
+        # stays on the same scale as the training data.
+        healed_count = round(
+            history["healed_count"].mean(),
+            3
         )
 
-        # Use the current automation status.
+        # Use the latest real automation status.
         last_status = test["status"]
 
         feature_records.append({
@@ -84,18 +75,47 @@ def build_features():
     return pd.DataFrame(feature_records)
 
 
+def prepare_model_features(feature_df):
+    """Convert feature records into the format expected by the ML model."""
+
+    model_features = feature_df[
+        FEATURE_COLUMNS
+    ].copy()
+
+    model_features["last_status"] = model_features[
+        "last_status"
+    ].map({
+        "passed": 0,
+        "failed": 1,
+    })
+
+    if model_features.isnull().any().any():
+        raise ValueError(
+            "Missing or invalid values found in model features."
+        )
+
+    return model_features
+
+
 if __name__ == "__main__":
 
     features = build_features()
 
+    model_features = prepare_model_features(
+        features
+    )
+
     print("\nAI Feature Records:")
-    print(features.to_string(index=False))
+    print(
+        features.to_string(index=False)
+    )
+
+    print("\nModel Features:")
+    print(
+        model_features.to_string(index=False)
+    )
 
     print("\nFeature columns:")
     print(
-        [
-            column
-            for column in features.columns
-            if column != "test_id"
-        ]
+        model_features.columns.tolist()
     )
