@@ -101,6 +101,10 @@ describe("Healenium Driver Connection", () => {
         module: "healenium",
         scenario: "locator-healing",
         locatorType: "id",
+        locator: {
+    id: "select_item"
+        },
+        url: "https://healenium.github.io/healenium-test-env/index.html",
         healingExpected: true
     }
 );
@@ -173,8 +177,12 @@ it("should automatically heal a changed CSS locator through Healenium", async ()
     {
         testId: "TC-HEAL-CSS-001",
         module: "healenium",
+        url: "https://healenium.github.io/healenium-test-env/index.html",
         scenario: "locator-healing",
         locatorType: "css",
+        locator: {
+    css: "select#select_item"
+    },
         healingExpected: true
     }
 );
@@ -234,6 +242,70 @@ it("should automatically heal a changed CSS locator through Healenium", async ()
 
     console.log("CSS STEP 7: actual operation verified");
 });
+it("should automatically heal a changed XPath locator through Healenium", async () => {
+    registerTestMetadata(
+        "Healenium Driver Connection should automatically heal a changed XPath locator through Healenium",
+        {
+            testId: "TC-HEAL-XPATH-001",
+            module: "healenium",
+            scenario: "locator-healing",
+            locatorType: "xpath",
+            locator: {
+    xpath: "//select[@name='item']"
+},
+    url: "https://healenium.github.io/healenium-test-env/index.html",
+            healingExpected: true
+        }
+    );
+
+    driver = await createDriver();
+    page = new BasePage(driver);
+
+    await page.navigateTo(
+        "https://healenium.github.io/healenium-test-env/index.html"
+    );
+
+    // Establish original XPath locator in Healenium history
+    const original = await page.findElement({
+        xpath: "//select[@name='item']"
+    });
+
+    expect(await original.getTagName()).toBe("select");
+
+    // Change locators in the application
+    const changeButton = await page.findElement({
+        xpath: "//button[contains(normalize-space(.), 'Change locators')]"
+    });
+
+    await changeButton.click();
+
+    console.log("XPATH STEP 1: requesting healed element");
+
+    // Intentionally use OLD XPath locator
+    const healed = await page.findElement({
+        xpath: "//select[@name='item']"
+    });
+
+    console.log("XPATH STEP 2: healed element found");
+
+    expect(await healed.getTagName()).toBe("select");
+
+    console.log("XPATH STEP 3: tag verified");
+
+    // Real operation
+    const select = new Select(healed);
+
+    await select.selectByVisibleText("Item 1");
+
+    console.log("XPATH STEP 4: select operation completed");
+
+    const selected = await select.getFirstSelectedOption();
+    const selectedText = await selected.getText();
+
+    expect(selectedText).toBe("Item 1");
+
+    console.log("XPATH STEP 5: actual operation verified");
+});
 it("should automatically heal a changed class locator through Healenium", async () => {registerTestMetadata(
     "Healenium Driver Connection should automatically heal a changed class locator through Healenium",
     {
@@ -241,6 +313,10 @@ it("should automatically heal a changed class locator through Healenium", async 
         module: "healenium",
         scenario: "locator-healing",
         locatorType: "class",
+        locator: {
+    className: "test_class"
+    },  
+    url: "https://healenium.github.io/healenium-test-env/index.html",
         healingExpected: true
     }
 );
@@ -284,3 +360,4 @@ it("should automatically heal a changed class locator through Healenium", async 
     console.log("CLASS STEP 4: healed class verified");
 });
 });
+

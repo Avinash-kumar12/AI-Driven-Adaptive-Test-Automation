@@ -1,5 +1,6 @@
 import { recordTestResult } from "../results/resultCollector.mjs";
 import { getTestMetadata } from "../utils/test-metadata.mjs";
+import { getLatestHealingScore } from "../utils/healing-score-resolver.mjs";
 import {
     getHealingState,
     resetHealingState
@@ -25,8 +26,26 @@ export function createResultReporter() {
                 result.failedExpectations?.length > 0;
 
             const healingState = getHealingState();
+            const metadata = getTestMetadata(result.fullName);
+            
 
-const metadata = getTestMetadata(result.fullName);
+let healingScore = healingState.healingScore;
+
+if (healingState.healed && metadata.locator) {
+    try {
+        const url = metadata.url;
+        healingScore = await getLatestHealingScore({
+            locator: metadata.locator,
+            command: metadata.locatorType === "xpath"
+                ? "findElements"
+                : "findElement",
+            url
+        });
+    } catch (error) {
+        console.log("Healing score lookup failed:", error);
+    }
+}
+
 
 recordTestResult({
     testId: metadata.testId ?? result.id,
@@ -34,7 +53,7 @@ recordTestResult({
     status: failed ? "failed" : result.status,
     duration,
     healed: healingState.healed,
-    healingScore: healingState.healingScore,
+    healingScore:healingScore,
     module: metadata.module ?? null,
     scenario: metadata.scenario ?? null,
     locatorType: metadata.locatorType ?? null,

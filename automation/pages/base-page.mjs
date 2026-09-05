@@ -3,17 +3,18 @@ import { waitForElement } from "../utils/wait-utils.mjs";
 import { markHealing } from "../utils/healing-context.mjs";
 
 export class BasePage {
-
     constructor(driver) {
         this.driver = driver;
     }
 
-   async findElement(locator) {
-    const element = await waitForElement(this.driver, locator);
+    async findElement(locator) {
+        const element = await waitForElement(this.driver, locator);
+        await this.detectHealing(locator, element);
+        return element;
+    }
 
-    await this.detectHealing(locator, element);
-
-    return element;
+    async recordHealing() {
+    markHealing();
 }
 
     async detectHealing(locator, element) {
@@ -21,7 +22,7 @@ export class BasePage {
             const actualId = await element.getAttribute("id");
 
             if (actualId && actualId !== locator.id) {
-                markHealing();
+                await this.recordHealing(locator);
                 return;
             }
         }
@@ -30,7 +31,7 @@ export class BasePage {
             const actualName = await element.getAttribute("name");
 
             if (actualName && actualName !== locator.name) {
-                markHealing();
+                await this.recordHealing(locator);
                 return;
             }
         }
@@ -42,7 +43,7 @@ export class BasePage {
                 actualClass &&
                 !actualClass.split(/\s+/).includes(locator.className)
             ) {
-                markHealing();
+                await this.recordHealing(locator);
                 return;
             }
         }
@@ -67,7 +68,7 @@ export class BasePage {
                 );
 
                 if (!matches) {
-                    markHealing();
+                    await this.recordHealing(locator);
                     return;
                 }
             }
@@ -104,7 +105,7 @@ export class BasePage {
             );
 
             if (!matches) {
-                markHealing();
+                await this.recordHealing(locator);
             }
         }
     }
@@ -134,22 +135,19 @@ export class BasePage {
     }
 
     async navigateTo(url) {
-        await this.driver.get(url);
+        return await this.driver.get(url);
     }
 
     async selectByVisibleText(locator, text) {
         const element = await this.findElement(locator);
         const select = new Select(element);
-
         await select.selectByVisibleText(text);
     }
 
     async getSelectedOptionText(locator) {
         const element = await this.findElement(locator);
         const select = new Select(element);
-
         const selectedOption = await select.getFirstSelectedOption();
-
         return await selectedOption.getText();
     }
 }
