@@ -7,5 +7,26 @@ export function registerTestMetadata(testName, metadata) {
 }
 
 export function getTestMetadata(testName) {
-    return testMetadata.get(testName) ?? {};
+    const exactMatch = testMetadata.get(testName);
+
+    if (exactMatch) {
+        return exactMatch;
+    }
+
+    const normalizedName = testName?.trim().replace(/\s+/g, " ");
+
+    if (!normalizedName) {
+        return {};
+    }
+
+    for (const [registeredName, metadata] of testMetadata.entries()) {
+        const normalizedRegisteredName =
+            registeredName.trim().replace(/\s+/g, " ");
+
+        if (normalizedRegisteredName === normalizedName) {
+            return metadata;
+        }
+    }
+
+    return {};
 }

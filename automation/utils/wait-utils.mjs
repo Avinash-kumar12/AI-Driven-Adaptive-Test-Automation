@@ -7,10 +7,13 @@ export async function waitForElement(driver, locator, timeout = 10000) {
             timeout
         );
     } catch (error) {
-        try {
-            return await driver.findElement(locator);
-        } catch {
-            throw error;
-        }
+    console.log("waitForElement failed:", error);
+
+    try {
+        return await driver.findElement(locator);
+    } catch (fallbackError) {
+        console.log("fallback findElement failed:", fallbackError);
+        throw error;
     }
+}
 }

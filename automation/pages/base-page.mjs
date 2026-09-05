@@ -9,7 +9,7 @@ export class BasePage {
     }
 
    async findElement(locator) {
-    const element = await this.driver.findElement(locator);
+    const element = await waitForElement(this.driver, locator);
 
     await this.detectHealing(locator, element);
 

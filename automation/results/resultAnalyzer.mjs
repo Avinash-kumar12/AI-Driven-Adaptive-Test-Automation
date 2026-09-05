@@ -95,4 +95,3 @@ export function analyzeResults() {
         lastStatus: data.last_status ?? "not_run"
     };
 }
-console.log(JSON.stringify(analyzeResults(), null, 2));

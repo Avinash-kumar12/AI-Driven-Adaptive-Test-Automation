@@ -39,7 +39,3 @@ export function generateReport() {
 
     return report;
 }
-
-console.log(
-    JSON.stringify(generateReport(), null, 2)
-);
