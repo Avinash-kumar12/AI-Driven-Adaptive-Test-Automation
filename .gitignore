@@ -17,3 +17,6 @@ node_modules_backup/
 
 # Generated result artifacts
 /automation/results/*.json
+# Generated AI prediction outputs
+ai/data/processed/*.json
+automation/results/
