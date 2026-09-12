@@ -39,6 +39,10 @@ if (locatorType === "className") {
     healeniumLocatorValue = `.${locatorValue}`;
 }
 
+if (locatorType === "name") {
+    healeniumLocatorValue = `*[name="${locatorValue}"]`;
+}
+
     const locatorTypeMap = {
     id: "By.cssSelector",
     css: "By.cssSelector",

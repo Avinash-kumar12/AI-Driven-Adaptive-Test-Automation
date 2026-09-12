@@ -355,7 +355,7 @@ it("should automatically heal a changed class locator through Healenium", async 
 
     console.log(`CLASS STEP 3: actual healed class = ${healedClass}`);
 
-    expect(healedClass).not.toBe("test_class");
+    expect(healedClass.split(/\s+/)).not.toContain("test_class");
 
     console.log("CLASS STEP 4: healed class verified");
 });
