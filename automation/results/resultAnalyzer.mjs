@@ -39,6 +39,26 @@ export function analyzeResults() {
         test => test.healingExpected === true
     ).length;
 
+    const healingScores = tests
+    .filter(
+        test =>
+            typeof test.healingScore === "number" &&
+            Number.isFinite(test.healingScore)
+    )
+    .map(test => test.healingScore);
+
+const averageHealingScore =
+    healingScores.length === 0
+        ? null
+        : Number(
+            (
+                healingScores.reduce(
+                    (sum, score) => sum + score,
+                    0
+                ) / healingScores.length
+            ).toFixed(4)
+        );
+
     const healingSuccessRate =
         healingExpected === 0
             ? 0
@@ -92,6 +112,8 @@ export function analyzeResults() {
         averageDuration: data.avg_duration ?? 0,
         failuresByModule,
         healingByLocatorType,
-        lastStatus: data.last_status ?? "not_run"
+        lastStatus: data.last_status ?? "not_run",
+        healingScores,
+        averageHealingScore
     };
 }

@@ -24,7 +24,9 @@ export function generateReport() {
             healingExpected: analysis.healingExpected,
             healingSuccessRate: analysis.healingSuccessRate,
             averageDuration: analysis.averageDuration,
-            lastStatus: analysis.lastStatus
+            lastStatus: analysis.lastStatus,
+            healingScores: analysis.healingScores,
+            averageHealingScore: analysis.averageHealingScore,
         },
 
         failuresByModule: analysis.failuresByModule,

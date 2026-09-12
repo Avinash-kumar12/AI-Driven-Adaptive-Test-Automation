@@ -9,6 +9,7 @@ const pool = new Pool({
     password: process.env.HEALENIUM_DB_PASSWORD,
     database: process.env.HEALENIUM_DB_NAME || "healenium",
     allowExitOnIdle: true,
+    connectionTimeoutMillis: 5000,
 });
 
 export async function connectHealingDatabase() {

@@ -1,6 +1,7 @@
 import { recordTestResult } from "../results/resultCollector.mjs";
 import { getTestMetadata } from "../utils/test-metadata.mjs";
 import { getLatestHealingScore } from "../utils/healing-score-resolver.mjs";
+import { generateReport } from "../results/reportGenerator.mjs";
 import {
     getHealingState,
     resetHealingState
@@ -64,9 +65,10 @@ resetHealingState();
         },
 
         jasmineDone() {
-            console.log(
-                "Jasmine execution results collected successfully."
-            );
-        }
+    generateReport();
+    console.log(
+        "Jasmine execution results collected successfully."
+    );
+}
     };
 }
