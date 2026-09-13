@@ -11,7 +11,7 @@ const resultsFile = path.join(
     resultsDir,
     "test-results.json"
 );
-function ensureResultsFile() {
+export function ensureResultsFile() {
     fs.mkdirSync(resultsDir, { recursive: true });
 
     if (!fs.existsSync(resultsFile)) {

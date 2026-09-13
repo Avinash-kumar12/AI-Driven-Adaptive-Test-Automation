@@ -1,4 +1,4 @@
-import { recordTestResult } from "../results/resultCollector.mjs";
+import { ensureResultsFile, recordTestResult } from "../results/resultCollector.mjs";
 import { getTestMetadata } from "../utils/test-metadata.mjs";
 import { getLatestHealingScore } from "../utils/healing-score-resolver.mjs";
 import { generateReport } from "../results/reportGenerator.mjs";
@@ -36,15 +36,11 @@ export function createResultReporter() {
 
                     healingScore = await getLatestHealingScore({
                         locator: healingState.locator ?? metadata.locator,
-                        command:
-                            healingState.command ??
-                            (metadata.locatorType === "xpath"
-                                ? "findElements"
-                                : "findElement"),
+                        command: healingState.command ?? "findElements",
                         url
                     });
                 } catch (error) {
-                    console.log("Healing score lookup failed:", error);
+                    console.error("Healing score lookup failed:", error.message);
                 }
             }
 
@@ -72,6 +68,7 @@ export function createResultReporter() {
         },
 
         jasmineDone() {
+            ensureResultsFile();
             generateReport();
             console.log("Jasmine execution results collected successfully.");
         }

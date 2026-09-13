@@ -66,7 +66,7 @@ if (locatorType === "name") {
           AND locator::jsonb ->> 'value' = $2
           AND command = $3
           AND url = $4
-        ORDER BY uid DESC
+        ORDER BY create_date DESC, uid DESC
         LIMIT 1
         `,
         [
@@ -91,7 +91,7 @@ if (locatorType === "name") {
             ON hr.healing_id = h.uid
         WHERE h.selector_id = $1
           AND hr.success_healing = true
-        ORDER BY hr.create_date DESC
+        ORDER BY h.create_date DESC, hr.create_date DESC, hr.id DESC
         LIMIT 1
         `,
         [selectorId]
