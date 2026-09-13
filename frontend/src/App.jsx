@@ -1,35 +1,59 @@
 import { useEffect, useState } from "react";
-import { getOverview, getTests, getRiskRanking } from "./services/api";
+import Overview from "./components/Overview";
+import TestResults from "./components/TestResults";
+import RiskRanking from "./components/RiskRanking";
+import Execution from "./components/Execution";
+import HealingResults from "./components/HealingResults";
+import ExecutionHistory from "./components/ExecutionHistory";
+import RiskChart from "./charts/RiskChart";
+
+import {
+  getOverview,
+  getTests,
+  getRiskRanking,
+  getExecutionResults,
+} from "./services/api";
 
 function App() {
   const [overview, setOverview] = useState(null);
   const [tests, setTests] = useState([]);
   const [error, setError] = useState("");
+  const [executionResults, setExecutionResults] = useState([]);
   const [riskRanking, setRiskRanking] = useState([]);
- useEffect(() => {
-  getOverview()
-    .then((data) => {
-      setOverview(data);
-    })
-    .catch((err) => {
-      setError(err.message);
-    });
 
-  getTests()
-    .then((data) => {
-      setTests(data);
-    })
-    .catch((err) => {
-      setError(err.message);
-    });
+  useEffect(() => {
+    getOverview()
+      .then((data) => {
+        setOverview(data);
+      })
+      .catch((err) => {
+        setError(err.message);
+      });
+
+    getTests()
+      .then((data) => {
+        setTests(data);
+      })
+      .catch((err) => {
+        setError(err.message);
+      });
+
     getRiskRanking()
-  .then((data) => {
-    setRiskRanking(data);
-  })
-  .catch((err) => {
-    setError(err.message);
-  });
-}, []);
+      .then((data) => {
+        setRiskRanking(data);
+      })
+      .catch((err) => {
+        setError(err.message);
+      });
+
+    getExecutionResults()
+      .then((data) => {
+        setExecutionResults(data.results);
+      })
+      .catch((err) => {
+        setError(err.message);
+      });
+  }, []);
 
   return (
     <div>
@@ -39,84 +63,19 @@ function App() {
 
       <hr />
 
-      <h2>Overview</h2>
+      <Overview overview={overview} />
 
       {error && <p>Error: {error}</p>}
 
-      {!overview && !error && <p>Loading...</p>}
+      <TestResults tests={tests} />
 
-      {overview && (
-        <div>
-          <p>Total Tests: {overview.totalTests}</p>
-          <p>Passed: {overview.passed}</p>
-          <p>Failed: {overview.failed}</p>
-          <p>Healed: {overview.healed}</p>
-          <p>High Risk: {overview.highRisk}</p>
-        </div>
-      )}
-<h2>Test Results</h2>
+      <RiskRanking riskRanking={riskRanking} />
+      <RiskChart riskRanking={riskRanking} />
+      <HealingResults tests={tests} />
+      <Execution executionResults={executionResults} />
+      
 
-{tests.length === 0 ? (
-  <p>Loading tests...</p>
-) : (
-  <table border="1" cellPadding="8">
-    <thead>
-      <tr>
-        <th>Test ID</th>
-        <th>Test Name</th>
-        <th>Status</th>
-        <th>Duration</th>
-        <th>Risk</th>
-        <th>Healed</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      {tests.map((test) => (
-        <tr key={test.testId}>
-          <td>{test.testId}</td>
-          <td>{test.testName}</td>
-          <td>{test.status}</td>
-          <td>{test.duration}s</td>
-          <td>{test.riskLevel}</td>
-          <td>{test.healed ? "Yes" : "No"}</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-)}
-<h2>Risk Ranking</h2>
-
-{riskRanking.length === 0 ? (
-  <p>Loading risk ranking...</p>
-) : (
-  <table border="1" cellPadding="8">
-    <thead>
-      <tr>
-        <th>Test ID</th>
-        <th>Failure Probability</th>
-        <th>Risk Level</th>
-        <th>Prediction</th>
-        <th>Priority</th>
-      </tr>
-    </thead>
-
-    <tbody>
-     {riskRanking.map((test) => (
-  <tr key={test.testId}>
-    <td>{test.testId}</td>
-    <td>{test.failureProbability}</td>
-    <td>{test.riskLevel}</td>
-    <td>{test.prediction}</td>
-    <td>{test.priority}</td>
-  </tr>
-))}
-    </tbody>
-  </table>
-)}
-
-      <h2>Execution</h2>
-      <p>Adaptive execution results will appear here.</p>
+      <ExecutionHistory executionResults={executionResults} />
     </div>
   );
 }
