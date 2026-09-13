@@ -12,6 +12,7 @@ import {
   getTests,
   getRiskRanking,
   getExecutionResults,
+  getExecutionHistory,
 } from "./services/api";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
   const [error, setError] = useState("");
   const [executionResults, setExecutionResults] = useState([]);
   const [riskRanking, setRiskRanking] = useState([]);
+  const [executionHistory, setExecutionHistory] = useState([]);
 
   useEffect(() => {
     getOverview()
@@ -53,6 +55,14 @@ function App() {
       .catch((err) => {
         setError(err.message);
       });
+
+    getExecutionHistory()
+      .then((data) => {
+        setExecutionHistory(data);
+      })
+      .catch((err) => {
+        setError(err.message);
+      });
   }, []);
 
   return (
@@ -70,12 +80,14 @@ function App() {
       <TestResults tests={tests} />
 
       <RiskRanking riskRanking={riskRanking} />
-      <RiskChart riskRanking={riskRanking} />
-      <HealingResults tests={tests} />
-      <Execution executionResults={executionResults} />
-      
 
-      <ExecutionHistory executionResults={executionResults} />
+      <RiskChart riskRanking={riskRanking} />
+
+      <HealingResults tests={tests} />
+
+      <Execution executionResults={executionResults} />
+
+      <ExecutionHistory executionHistory={executionHistory} />
     </div>
   );
 }

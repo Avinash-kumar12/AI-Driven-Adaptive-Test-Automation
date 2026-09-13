@@ -39,3 +39,12 @@ export async function getExecutionResults() {
 
   return response.json();
 }
+export async function getExecutionHistory() {
+  const response = await fetch(`${API_URL}/api/history`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch execution history");
+  }
+
+  return response.json();
+}
