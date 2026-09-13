@@ -1,5 +1,6 @@
 const predictions = require("../data/ai/predictions");
 const { executeTest } = require("./mock-executor");
+const executionHistory = require("../data/execution-history");
 
 function selectTests() {
     return predictions
@@ -15,12 +16,19 @@ async function runSelectedTests() {
     for (const test of selectedTests) {
         const result = await executeTest(test);
 
-        results.push({
+        const executionResult = {
             ...result,
             failureProbability: test.failureProbability,
             riskLevel: test.riskLevel,
             prediction: test.prediction,
             priority: test.priority
+        };
+
+        results.push(executionResult);
+
+        executionHistory.push({
+            ...executionResult,
+            executedAt: new Date().toISOString()
         });
     }
 
