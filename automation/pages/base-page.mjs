@@ -21,7 +21,7 @@ export class BasePage {
         if (locator.id) {
             const actualId = await element.getAttribute("id");
 
-            if (actualId && actualId !== locator.id) {
+            if (actualId !== locator.id) {
                 await this.recordHealing(locator);
                 return;
             }
@@ -30,7 +30,7 @@ export class BasePage {
         if (locator.name) {
             const actualName = await element.getAttribute("name");
 
-            if (actualName && actualName !== locator.name) {
+            if (actualName !== locator.name) {
                 await this.recordHealing(locator);
                 return;
             }
@@ -40,7 +40,7 @@ export class BasePage {
             const actualClass = await element.getAttribute("class");
 
             if (
-                actualClass &&
+                !actualClass ||
                 !actualClass.split(/\s+/).includes(locator.className)
             ) {
                 await this.recordHealing(locator);
@@ -151,5 +151,4 @@ export class BasePage {
         return await selectedOption.getText();
     }
 }
-
 
