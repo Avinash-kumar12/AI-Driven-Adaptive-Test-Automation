@@ -48,6 +48,12 @@ export function createResultReporter() {
                 }
             }
 
+            if (result.status !== "passed" && result.status !== "failed") {
+                resetHealingState();
+                startedAt.delete(result.id);
+                return;
+            }
+
             recordTestResult({
                 testId: metadata.testId ?? result.id,
                 testName: result.fullName,
