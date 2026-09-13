@@ -13,9 +13,9 @@ export class BasePage {
         return element;
     }
 
-    async recordHealing() {
-    markHealing();
-}
+    async recordHealing(locator) {
+        markHealing(locator);
+    }
 
     async detectHealing(locator, element) {
         if (locator.id) {
@@ -151,3 +151,5 @@ export class BasePage {
         return await selectedOption.getText();
     }
 }
+
+

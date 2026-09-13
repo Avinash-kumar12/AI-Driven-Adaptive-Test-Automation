@@ -6,13 +6,12 @@ import {
     getHealingState,
     resetHealingState
 } from "../utils/healing-context.mjs";
+
 export function createResultReporter() {
     const startedAt = new Map();
 
     return {
-        jasmineStarted() {
-            // Reporter initialization hook
-        },
+        jasmineStarted() {},
 
         specStarted(result) {
             startedAt.set(result.id, Date.now());
@@ -28,47 +27,47 @@ export function createResultReporter() {
 
             const healingState = getHealingState();
             const metadata = getTestMetadata(result.fullName);
-            
 
-let healingScore = healingState.healingScore;
+            let healingScore = healingState.healingScore;
 
-if (healingState.healed && metadata.locator) {
-    try {
-        const url = metadata.url;
-        healingScore = await getLatestHealingScore({
-            locator: metadata.locator,
-            command: metadata.locatorType === "xpath"
-                ? "findElements"
-                : "findElement",
-            url
-        });
-    } catch (error) {
-        console.log("Healing score lookup failed:", error);
-    }
-}
+            if (healingState.healed && (healingState.locator || metadata.locator)) {
+                try {
+                    const url = metadata.url;
 
+                    healingScore = await getLatestHealingScore({
+                        locator: healingState.locator ?? metadata.locator,
+                        command:
+                            healingState.command ??
+                            (metadata.locatorType === "xpath"
+                                ? "findElements"
+                                : "findElement"),
+                        url
+                    });
+                } catch (error) {
+                    console.log("Healing score lookup failed:", error);
+                }
+            }
 
-recordTestResult({
-    testId: metadata.testId ?? result.id,
-    testName: result.fullName,
-    status: failed ? "failed" : result.status,
-    duration,
-    healed: healingState.healed,
-    healingScore:healingScore,
-    module: metadata.module ?? null,
-    scenario: metadata.scenario ?? null,
-    locatorType: metadata.locatorType ?? null,
-    healingExpected: metadata.healingExpected ?? false
-});
-resetHealingState();
+            recordTestResult({
+                testId: metadata.testId ?? result.id,
+                testName: result.fullName,
+                status: failed ? "failed" : result.status,
+                duration,
+                healed: healingState.healed,
+                healingScore,
+                module: metadata.module ?? null,
+                scenario: metadata.scenario ?? null,
+                locatorType: metadata.locatorType ?? null,
+                healingExpected: metadata.healingExpected ?? false
+            });
+
+            resetHealingState();
             startedAt.delete(result.id);
         },
 
         jasmineDone() {
-    generateReport();
-    console.log(
-        "Jasmine execution results collected successfully."
-    );
-}
+            generateReport();
+            console.log("Jasmine execution results collected successfully.");
+        }
     };
 }

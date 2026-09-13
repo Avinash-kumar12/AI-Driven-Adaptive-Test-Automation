@@ -1,12 +1,16 @@
 let healingState = {
     healed: false,
-    healingScore: null
+    healingScore: null,
+    locator: null,
+    command: null
 };
 
-export function markHealing(score = null) {
+export function markHealing(locator = null, command = null, score = null) {
     healingState = {
         healed: true,
-        healingScore: score
+        healingScore: score,
+        locator,
+        command
     };
 }
 
@@ -17,6 +21,8 @@ export function getHealingState() {
 export function resetHealingState() {
     healingState = {
         healed: false,
-        healingScore: null
+        healingScore: null,
+        locator: null,
+        command: null
     };
 }
