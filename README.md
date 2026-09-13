@@ -27,4 +27,16 @@ Example:
 
 ```powershell
 $env:HEALENIUM_URL="http://localhost:8085"
-npm test
+npm --prefix automation test
+```
+
+
+The healing-score resolver also requires the Healenium PostgreSQL database to be accessible using the following environment variables:
+
+- `HEALENIUM_DB_HOST`
+- `HEALENIUM_DB_PORT`
+- `HEALENIUM_DB_USER`
+- `HEALENIUM_DB_PASSWORD`
+- `HEALENIUM_DB_NAME`
+
+The default database host is `localhost`, port is `5432`, user is `healenium_user`, and database is `healenium`.
