@@ -14,7 +14,14 @@ async function runSelectedTests() {
 
     for (const test of selectedTests) {
         const result = await executeTest(test);
-        results.push(result);
+
+        results.push({
+            ...result,
+            failureProbability: test.failureProbability,
+            riskLevel: test.riskLevel,
+            prediction: test.prediction,
+            priority: test.priority
+        });
     }
 
     return results;
