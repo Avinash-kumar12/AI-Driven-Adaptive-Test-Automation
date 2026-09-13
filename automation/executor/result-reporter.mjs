@@ -9,6 +9,7 @@ import {
 
 export function createResultReporter() {
     const startedAt = new Map();
+    const pendingSpecResults = [];
 
     return {
         jasmineStarted() {},
@@ -17,9 +18,10 @@ export function createResultReporter() {
             startedAt.set(result.id, Date.now());
         },
 
-        async specDone(result) {
-            const start = startedAt.get(result.id) ?? Date.now();
-            const duration = (Date.now() - start) / 1000;
+        specDone(result) {
+            const specPromise = (async () => {
+                const start = startedAt.get(result.id) ?? Date.now();
+                const duration = (Date.now() - start) / 1000;
 
             const failed =
                 result.status === "failed" ||
@@ -65,9 +67,14 @@ export function createResultReporter() {
 
             resetHealingState();
             startedAt.delete(result.id);
+            })();
+
+            pendingSpecResults.push(specPromise);
+            return specPromise;
         },
 
-        jasmineDone() {
+        async jasmineDone() {
+            await Promise.all(pendingSpecResults);
             ensureResultsFile();
             generateReport();
             console.log("Jasmine execution results collected successfully.");

@@ -8,21 +8,21 @@ export class BasePage {
     }
 
     async findElement(locator) {
-        const element = await waitForElement(this.driver, locator);
-        await this.detectHealing(locator, element);
+        const { element, command } = await waitForElement(this.driver, locator);
+        await this.detectHealing(locator, element, command);
         return element;
     }
 
-    async recordHealing(locator) {
-        markHealing(locator);
+    async recordHealing(locator, command) {
+        markHealing(locator, command);
     }
 
-    async detectHealing(locator, element) {
+    async detectHealing(locator, element, command) {
         if (locator.id) {
             const actualId = await element.getAttribute("id");
 
             if (actualId !== locator.id) {
-                await this.recordHealing(locator);
+                await this.recordHealing(locator, command);
                 return;
             }
         }
@@ -31,7 +31,7 @@ export class BasePage {
             const actualName = await element.getAttribute("name");
 
             if (actualName !== locator.name) {
-                await this.recordHealing(locator);
+                await this.recordHealing(locator, command);
                 return;
             }
         }
@@ -43,7 +43,7 @@ export class BasePage {
                 !actualClass ||
                 !actualClass.split(/\s+/).includes(locator.className)
             ) {
-                await this.recordHealing(locator);
+                await this.recordHealing(locator, command);
                 return;
             }
         }
@@ -68,7 +68,7 @@ export class BasePage {
                 );
 
                 if (!matches) {
-                    await this.recordHealing(locator);
+                    await this.recordHealing(locator, command);
                     return;
                 }
             }
@@ -105,7 +105,7 @@ export class BasePage {
             );
 
             if (!matches) {
-                await this.recordHealing(locator);
+                await this.recordHealing(locator, command);
             }
         }
     }
@@ -151,4 +151,3 @@ export class BasePage {
         return await selectedOption.getText();
     }
 }
-
