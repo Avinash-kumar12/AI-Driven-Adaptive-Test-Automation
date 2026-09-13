@@ -168,9 +168,8 @@ describe("Healenium Driver Connection", () => {
     expect(selectedText).toBe("Item 1");
 
     console.log("STEP 8: actual operation verified");
-
-    // Mark this test as healed only after the complete
-    // healing + real operation succeeds.
+    // Healing is recorded when Healenium successfully
+    // recovers the original locator.
 });
 it("should automatically heal a changed CSS locator through Healenium", async () => {registerTestMetadata(
     "Healenium Driver Connection should automatically heal a changed CSS locator through Healenium",
