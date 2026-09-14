@@ -1,11 +1,14 @@
 const express = require("express");
-
-const executionHistory = require("../data/execution-history");
+const db = require("../database");
 
 const router = express.Router();
 
 router.get("/", (req, res) => {
-    res.json(executionHistory);
+    const history = db
+        .prepare("SELECT * FROM execution_history ORDER BY id DESC")
+        .all();
+
+    res.json(history);
 });
 
 module.exports = router;

@@ -1,6 +1,6 @@
 const predictions = require("../data/ai/predictions");
 const { executeTest } = require("./mock-executor");
-const executionHistory = require("../data/execution-history");
+const db = require("../database");
 
 function selectTests() {
     return predictions
@@ -24,12 +24,34 @@ async function runSelectedTests() {
             priority: test.priority
         };
 
-        results.push(executionResult);
+        db.prepare(`
+            INSERT INTO execution_history (
+                testId,
+                status,
+                duration,
+                healed,
+                message,
+                failureProbability,
+                riskLevel,
+                prediction,
+                priority,
+                executedAt
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+            executionResult.testId,
+            executionResult.status,
+            executionResult.duration,
+            executionResult.healed ? 1 : 0,
+            executionResult.message,
+            executionResult.failureProbability,
+            executionResult.riskLevel,
+            executionResult.prediction,
+            executionResult.priority,
+            new Date().toISOString()
+        );
 
-        executionHistory.push({
-            ...executionResult,
-            executedAt: new Date().toISOString()
-        });
+        results.push(executionResult);
     }
 
     return results;
