@@ -6,3 +6,5 @@ __pycache__/
 *.pyc
 dist/
 build/
+# Runtime SQLite database
+backend/data/db/*.db
