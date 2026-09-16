@@ -7,6 +7,8 @@ const __dirname = path.dirname(__filename);
 
 const resultsDir = __dirname;
 
+const MAX_TEST_HISTORY = 1000;
+
 const resultsFile = path.join(
     resultsDir,
     "test-results.json"
@@ -85,6 +87,7 @@ healingExpected = false
     }
 
     data.tests.push(result);
+    data.tests = data.tests.slice(-MAX_TEST_HISTORY);
 
     const totalDuration = data.tests.reduce(
         (sum, test) => sum + test.duration,

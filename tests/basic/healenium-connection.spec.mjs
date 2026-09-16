@@ -311,7 +311,7 @@ it("should automatically heal a changed class locator through Healenium", async 
         testId: "TC-HEAL-CLASS-001",
         module: "healenium",
         scenario: "locator-healing",
-        locatorType: "class",
+        locatorType: "className",
         locator: {
     className: "test_class"
     },  
@@ -359,4 +359,3 @@ it("should automatically heal a changed class locator through Healenium", async 
     console.log("CLASS STEP 4: healed class verified");
 });
 });
-
