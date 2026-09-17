@@ -1,5 +1,5 @@
 const predictions = require("../data/ai/predictions");
-const { executeTest } = require("./mock-executor");
+const { executeAutomationTest } = require("../../automation/executor/test-executor.mjs");
 const db = require("../database");
 
 function selectTests() {
@@ -14,7 +14,7 @@ async function runSelectedTests() {
     const results = [];
 
     for (const test of selectedTests) {
-        const result = await executeTest(test);
+        const result = await executeAutomationTest(test.testId);
 
         const executionResult = {
             ...result,
