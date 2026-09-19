@@ -1,0 +1,19 @@
+{
+  "name": "automation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "cd .. && jasmine --config=jasmine.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pg": "^8.23.0",
+    "selenium-webdriver": "^4.47.0"
+  },
+  "devDependencies": {
+    "jasmine": "^7.0.0"
+  }
+}
