@@ -193,3 +193,42 @@ export async function executePrioritizedTests() {
 
     return executionSummary;
 }
+
+export async function executeSingleTest(testId) {
+    const definition = getTestDefinition(testId);
+
+    console.log(
+        `\nExecuting adaptive test: ${testId}`
+    );
+
+    return await runSingleTest(definition);
+}
+
+export async function executeSelectedTests(testIds) {
+    const executionSummary = [];
+
+    for (const testId of testIds) {
+        const definition = getTestDefinition(testId);
+
+        console.log(
+            `\nExecuting selected test: ${testId}`
+        );
+
+        try {
+            const passed = await runSingleTest(definition);
+
+            executionSummary.push({
+                testId,
+                status: passed ? "passed" : "failed"
+            });
+        } catch (error) {
+            executionSummary.push({
+                testId,
+                status: "failed",
+                error: error.message
+            });
+        }
+    }
+
+    return executionSummary;
+}
