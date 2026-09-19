@@ -29,6 +29,31 @@ def build_historical_records():
         execution_data
     )
 
+    # Keep only the latest execution for each test ID.
+    # test-results.json contains accumulated runtime history,
+    # but the feedback loop should process only the latest
+    # current execution of each test.
+    latest_tests = {}
+
+    for test in current_tests:
+        test_id = test["test_id"]
+        existing = latest_tests.get(test_id)
+
+        if existing is None or str(test.get("timestamp", "")) > str(existing.get("timestamp", "")):
+            latest_tests[test_id] = test
+
+    current_tests = list(latest_tests.values())
+
+    print(
+        f"Current execution records: "
+        f"{len(execution_data.get('tests', []))}"
+    )
+
+    print(
+        f"Unique latest test records: "
+        f"{len(current_tests)}"
+    )
+
     if "timestamp" not in history.columns:
         history["timestamp"] = ""
 
