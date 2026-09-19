@@ -99,7 +99,37 @@ export function getTestDefinition(testId) {
     return definition;
 }
 
-function runSingleTest(definition) {
+function getLatestTestResult(testId) {
+    const resultsPath = path.join(
+        PROJECT_ROOT,
+        "automation",
+        "results",
+        "test-results.json"
+    );
+
+    if (!fs.existsSync(resultsPath)) {
+        return null;
+    }
+
+    const data = JSON.parse(
+        fs.readFileSync(resultsPath, "utf-8")
+    );
+
+    const matchingResults = (data.tests ?? [])
+        .filter(result => result.testId === testId)
+        .sort(
+            (a, b) =>
+                new Date(b.timestamp) -
+                new Date(a.timestamp)
+        );
+
+    return matchingResults[0] ?? null;
+}
+
+
+
+
+function runSingleTest(definition, testId) {
     return new Promise((resolve) => {
         const child = spawn(
             process.execPath,
@@ -121,7 +151,20 @@ function runSingleTest(definition) {
         });
 
         child.on("close", (code) => {
-            resolve(code === 0);
+            const result = getLatestTestResult(testId);
+
+            if (result) {
+                resolve(result);
+                return;
+            }
+
+            resolve({
+                testId,
+                status: code === 0 ? "passed" : "failed",
+                duration: null,
+                healed: false,
+                healingScore: null
+            });
         });
     });
 }
@@ -154,9 +197,9 @@ export async function executePrioritizedTests() {
         );
 
         try {
-            const passed = await runSingleTest(definition);
+            const result = await runSingleTest(definition, testId);
 
-            const status = passed ? "passed" : "failed";
+            const status = result.status;
 
             executionSummary.push({
                 testId: test.test_id,
@@ -201,7 +244,7 @@ export async function executeSingleTest(testId) {
         `\nExecuting adaptive test: ${testId}`
     );
 
-    return await runSingleTest(definition);
+    return await runSingleTest(definition, testId);
 }
 
 export async function executeSelectedTests(testIds) {
@@ -215,12 +258,9 @@ export async function executeSelectedTests(testIds) {
         );
 
         try {
-            const passed = await runSingleTest(definition);
+            const result = await runSingleTest(definition, testId);
 
-            executionSummary.push({
-                testId,
-                status: passed ? "passed" : "failed"
-            });
+            executionSummary.push(result);
         } catch (error) {
             executionSummary.push({
                 testId,

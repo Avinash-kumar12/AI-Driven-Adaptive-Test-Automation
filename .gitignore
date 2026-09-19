@@ -20,3 +20,7 @@ node_modules_backup/
 # Generated AI prediction outputs
 ai/data/processed/*.json
 automation/results/
+
+# Runtime/generated backend data
+backend/data/
+backend/controller/mock-executor.js
