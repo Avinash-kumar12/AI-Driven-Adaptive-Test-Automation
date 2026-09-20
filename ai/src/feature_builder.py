@@ -59,8 +59,34 @@ def build_features():
             3
         )
 
-        # Use the latest real automation status.
-        last_status = test["status"]
+        # Use the current automation status when it is
+        # a real pass/fail outcome.
+        current_status = str(
+            test["status"]
+        ).strip().lower()
+
+        if current_status in {"passed", "failed"}:
+            last_status = current_status
+
+        elif current_status == "excluded":
+            # Excluded is not a pass/fail outcome.
+            # Use the latest known historical status instead.
+            last_status = str(
+                history.iloc[-1]["last_status"]
+            ).strip().lower()
+
+        else:
+            raise ValueError(
+                f"Unsupported test status for {test_id}: "
+                f"{test['status']}"
+            )
+
+        # Never allow an invalid status to reach the model.
+        if last_status not in {"passed", "failed"}:
+            raise ValueError(
+                f"Invalid historical last_status for {test_id}: "
+                f"{last_status}"
+            )
 
         feature_records.append({
             "test_id": test_id,

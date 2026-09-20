@@ -39,6 +39,15 @@ def build_historical_records():
                 f"Execution timestamp not found for {test_id}."
             )
 
+        # Excluded executions do not represent a pass/fail outcome.
+        # Do not create a training label from them.
+        if str(test["status"]).strip().lower() == "excluded":
+            print(
+                f"Skipping {test_id}: "
+                "excluded execution is not added to historical training data."
+            )
+            continue
+
         # Prevent processing the same test execution twice.
         test_already_processed = (
             (history["test_id"].astype(str) == str(test_id))
