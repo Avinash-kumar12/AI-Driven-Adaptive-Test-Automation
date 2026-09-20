@@ -6,6 +6,21 @@ __pycache__/
 *.pyc
 dist/
 build/
+# Generated test results
+results/test-results.json
+results/generated-report.json
+results/*.backup.json
+
+# Backup source files
+*.backup.mjs
+node_modules_backup/
+
+# Generated result artifacts
+/automation/results/*.json
 # Generated AI prediction outputs
 ai/data/processed/*.json
 automation/results/
+
+# Runtime/generated backend data
+backend/data/
+backend/controller/mock-executor.js

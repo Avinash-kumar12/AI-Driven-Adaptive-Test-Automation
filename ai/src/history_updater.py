@@ -1,7 +1,10 @@
 import pandas as pd
 from pathlib import Path
 
-from data_adapter import load_execution_results, convert_to_test_records
+from data_adapter import (
+    load_execution_results,
+    convert_to_test_records,
+)
 from data_loader import load_data
 
 
@@ -21,9 +24,36 @@ def build_historical_records():
     history = load_data()
 
     execution_data = load_execution_results()
-    current_tests = convert_to_test_records(execution_data)
 
-    # Add timestamp column if it does not exist yet.
+    current_tests = convert_to_test_records(
+        execution_data
+    )
+
+    # Keep only the latest execution for each test ID.
+    # test-results.json contains accumulated runtime history,
+    # but the feedback loop should process only the latest
+    # current execution of each test.
+    latest_tests = {}
+
+    for test in current_tests:
+        test_id = test["test_id"]
+        existing = latest_tests.get(test_id)
+
+        if existing is None or str(test.get("timestamp", "")) > str(existing.get("timestamp", "")):
+            latest_tests[test_id] = test
+
+    current_tests = list(latest_tests.values())
+
+    print(
+        f"Current execution records: "
+        f"{len(execution_data.get('tests', []))}"
+    )
+
+    print(
+        f"Unique latest test records: "
+        f"{len(current_tests)}"
+    )
+
     if "timestamp" not in history.columns:
         history["timestamp"] = ""
 
@@ -32,6 +62,7 @@ def build_historical_records():
     for test in current_tests:
 
         test_id = test["test_id"]
+
         execution_timestamp = test["timestamp"]
 
         if not execution_timestamp:
@@ -39,10 +70,35 @@ def build_historical_records():
                 f"Execution timestamp not found for {test_id}."
             )
 
-        # Prevent processing the same test execution twice.
+        # Normalize the automation status.
+        current_status = (
+            str(test["status"])
+            .strip()
+            .lower()
+        )
+
+        # Only actual execution outcomes are allowed
+        # to become training records.
+        if current_status == "excluded":
+            print(
+                f"Skipping {test_id}: "
+                "execution was excluded and will not "
+                "be added to historical training data."
+            )
+            continue
+
+        if current_status not in {"passed", "failed"}:
+            raise ValueError(
+                f"Unsupported test status for {test_id}: "
+                f"{test['status']}. "
+                f"Expected passed, failed, or excluded."
+            )
+
+        # Prevent processing the same execution twice.
         test_already_processed = (
             (history["test_id"].astype(str) == str(test_id))
-            & (
+            &
+            (
                 history["timestamp"].astype(str)
                 == str(execution_timestamp)
             )
@@ -66,8 +122,6 @@ def build_historical_records():
             )
             continue
 
-        # These features describe the test BEFORE
-        # the current automation execution.
         execution_count = len(test_history)
 
         failure_count = int(
@@ -90,14 +144,24 @@ def build_historical_records():
             3
         )
 
-        # Use the previous status to prevent
-        # target leakage.
-        last_status = test_history.iloc[-1]["last_status"]
-
-        # Current automation result becomes the target.
-        next_run_failed = (
-            1 if test["status"] == "failed" else 0
+        last_status = (
+            str(test_history.iloc[-1]["last_status"])
+            .strip()
+            .lower()
         )
+
+        if last_status not in {"passed", "failed"}:
+            raise ValueError(
+                f"Invalid historical last_status for "
+                f"{test_id}: {last_status}."
+            )
+
+        # Actual current execution outcome becomes
+        # the target for the next prediction.
+        if current_status == "failed":
+            next_run_failed = 1
+        else:
+            next_run_failed = 0
 
         new_records.append({
             "test_id": test_id,
@@ -128,12 +192,12 @@ def append_historical_records(records):
 
     updated_history = pd.concat(
         [history, records],
-        ignore_index=True
+        ignore_index=True,
     )
 
     updated_history.to_csv(
         HISTORY_PATH,
-        index=False
+        index=False,
     )
 
     print(
@@ -155,6 +219,7 @@ if __name__ == "__main__":
 
     if records.empty:
         print("No new records generated.")
+
     else:
         print(
             records.to_string(index=False)
