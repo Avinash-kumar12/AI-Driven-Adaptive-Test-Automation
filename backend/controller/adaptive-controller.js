@@ -72,8 +72,10 @@ async function runSelectedTests() {
 
         const result = {
             ...executionResult,
-            duration: null,
-            healed: false,
+            duration: executionResult.duration,
+            healed: executionResult.healed,
+            healingScore: executionResult.healingScore,
+            timestamp: executionResult.timestamp,
             message:
                 executionResult.error ??
                 `Selected test execution completed with status: ${executionResult.status}`,
@@ -90,25 +92,29 @@ async function runSelectedTests() {
                 status,
                 duration,
                 healed,
+                healingScore,
                 message,
                 failureProbability,
                 riskLevel,
                 prediction,
                 priority,
-                executedAt
+                executedAt,
+                timestamp
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
             result.testId,
             result.status,
             result.duration,
             result.healed ? 1 : 0,
+            result.healingScore,
             result.message,
             result.failureProbability,
             result.riskLevel,
             result.prediction,
             result.priority,
-            new Date().toISOString()
+            new Date().toISOString(),
+            result.timestamp
         );
 
         results.push(result);

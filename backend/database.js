@@ -26,13 +26,32 @@ db.exec(`
         status TEXT NOT NULL,
         duration REAL,
         healed INTEGER,
+        healingScore REAL,
         message TEXT,
         failureProbability REAL,
         riskLevel TEXT,
         prediction INTEGER,
         priority INTEGER,
-        executedAt TEXT NOT NULL
+        executedAt TEXT NOT NULL,
+        timestamp TEXT
     )
 `);
+
+const columns = db
+    .prepare("PRAGMA table_info(execution_history)")
+    .all()
+    .map((column) => column.name);
+
+if (!columns.includes("healingScore")) {
+    db.exec(
+        "ALTER TABLE execution_history ADD COLUMN healingScore REAL"
+    );
+}
+
+if (!columns.includes("timestamp")) {
+    db.exec(
+        "ALTER TABLE execution_history ADD COLUMN timestamp TEXT"
+    );
+}
 
 module.exports = db;
