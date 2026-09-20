@@ -2,6 +2,10 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { spawn } from "child_process";
+import { createDriver } from "./driver-factory.mjs";
+import { BasePage } from "../pages/base-page.mjs";
+import { getHealingState, resetHealingState } from "../utils/healing-context.mjs";
+import { getLatestHealingScore } from "../utils/healing-score-resolver.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -271,4 +275,152 @@ export async function executeSelectedTests(testIds) {
     }
 
     return executionSummary;
+}
+
+function buildLocator(step) {
+    if (!step.locatorType || !step.locator) {
+        throw new Error(
+            `Locator is required for ${step.action} step`
+        );
+    }
+
+    return {
+        [step.locatorType]: step.locator
+    };
+}
+
+
+function resolveOpenUrl(targetUrl, value) {
+    if (!targetUrl) {
+        throw new Error("targetUrl is required for OPEN step");
+    }
+
+    if (!value) {
+        return targetUrl;
+    }
+
+    return new URL(value, targetUrl).href;
+}
+
+
+async function resolveDynamicHealingScore(healingState, testDefinition) {
+    if (!healingState.healed || !healingState.locator) {
+        return healingState.healingScore;
+    }
+
+    try {
+        return await getLatestHealingScore({
+            locator: healingState.locator,
+            command: healingState.command ?? "findElements",
+            url: testDefinition.targetUrl
+        });
+    } catch (error) {
+        console.error("Dynamic healing score lookup failed:", error.message);
+        return healingState.healingScore;
+    }
+}
+export async function executeDynamicTest(testDefinition) {
+    const startedAt = Date.now();
+
+    let driver = null;
+
+    try {
+        if (!testDefinition?.testId) {
+            throw new Error("testDefinition.testId is required");
+        }
+
+        if (!testDefinition?.targetUrl) {
+            throw new Error("testDefinition.targetUrl is required");
+        }
+
+        if (!Array.isArray(testDefinition.steps)) {
+            throw new Error("testDefinition.steps must be an array");
+        }
+
+        driver = await createDriver();
+        const page = new BasePage(driver);
+
+        resetHealingState();
+
+        for (const step of testDefinition.steps) {
+            if (!step?.action) {
+                throw new Error("Each test step must contain an action");
+            }
+
+            switch (step.action) {
+                case "OPEN": {
+                    const url = resolveOpenUrl(
+                        testDefinition.targetUrl,
+                        step.value
+                    );
+                    await page.navigateTo(url);
+                    break;
+                }
+
+                case "TYPE": {
+                    const locator = buildLocator(step);
+                    await page.type(locator, step.value ?? "");
+                    break;
+                }
+
+                case "CLICK": {
+                    const locator = buildLocator(step);
+                    await page.click(locator);
+                    break;
+                }
+
+                case "VERIFY": {
+                    const locator = buildLocator(step);
+                    const displayed = await page.isDisplayed(locator);
+
+                    if (!displayed) {
+                        throw new Error("VERIFY failed: element is not displayed");
+                    }
+
+                    if (step.value !== null && step.value !== undefined && step.value !== "") {
+                        const actualText = await page.getText(locator);
+                        if (actualText !== step.value) {
+                            throw new Error(`VERIFY failed: expected text "${step.value}", got "${actualText}"`);
+                        }
+                    }
+
+                    break;
+                }
+
+                default:
+                    throw new Error(`Unsupported action: ${step.action}`);
+            }
+        }
+
+        const healingState = getHealingState();
+        const healingScore = await resolveDynamicHealingScore(healingState, testDefinition);
+
+        return {
+            testId: testDefinition.testId,
+            status: "passed",
+            duration: Date.now() - startedAt,
+            healed: healingState.healed,
+            healingScore,
+            timestamp: new Date().toISOString()
+        };
+
+    } catch (error) {
+        const healingState = getHealingState();
+        const healingScore = await resolveDynamicHealingScore(healingState, testDefinition);
+
+        return {
+            testId: testDefinition.testId,
+            status: "failed",
+            duration: Date.now() - startedAt,
+            healed: healingState.healed,
+            healingScore,
+            timestamp: new Date().toISOString(),
+            error: error.message
+        };
+
+    } finally {
+        if (driver) {
+            await driver.quit();
+        }
+    }
 }
