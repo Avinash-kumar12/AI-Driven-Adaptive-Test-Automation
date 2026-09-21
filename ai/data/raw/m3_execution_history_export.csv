@@ -1,0 +1,32 @@
+id,testId,status,duration,healed,healingScore,message,failureProbability,riskLevel,prediction,priority,executedAt,timestamp
+1,TC002,passed,2.5,0,,Mock execution completed,0.9995,HIGH,1,1,2026-09-14T15:02:57.964Z,
+2,TC004,passed,2.5,0,,Mock execution completed,0.9603,HIGH,1,2,2026-09-14T15:02:57.995Z,
+3,TC002,passed,2.5,0,,Mock execution completed,0.9995,HIGH,1,1,2026-09-14T15:10:49.313Z,
+4,TC004,passed,2.5,0,,Mock execution completed,0.9603,HIGH,1,2,2026-09-14T15:10:49.332Z,
+5,TC002,passed,2.5,0,,Mock execution completed,0.9995,HIGH,1,1,2026-09-14T15:11:03.642Z,
+6,TC004,passed,2.5,0,,Mock execution completed,0.9603,HIGH,1,2,2026-09-14T15:11:03.652Z,
+7,TC002,passed,2.5,0,,Mock execution completed,0.9995,HIGH,1,1,2026-09-14T15:20:19.402Z,
+8,TC004,passed,2.5,0,,Mock execution completed,0.9603,HIGH,1,2,2026-09-14T15:20:19.413Z,
+9,TC002,passed,2.5,0,,Mock execution completed,0.9995,HIGH,1,1,2026-09-14T15:25:09.746Z,
+10,TC004,passed,2.5,0,,Mock execution completed,0.9603,HIGH,1,2,2026-09-14T15:25:09.759Z,
+11,TC002,passed,2.5,0,,Mock execution completed,0.9995,HIGH,1,1,2026-09-14T15:30:17.103Z,
+12,TC004,passed,2.5,0,,Mock execution completed,0.9603,HIGH,1,2,2026-09-14T15:30:17.114Z,
+13,TC002,passed,2.5,0,,Mock execution completed,0.9995,HIGH,1,1,2026-09-15T18:26:53.737Z,
+14,TC004,passed,2.5,0,,Mock execution completed,0.9603,HIGH,1,2,2026-09-15T18:26:53.751Z,
+15,TC002,passed,2.5,0,,Mock execution completed,0.9995,HIGH,1,1,2026-09-15T18:28:13.810Z,
+16,TC004,passed,2.5,0,,Mock execution completed,0.9603,HIGH,1,2,2026-09-15T18:28:13.817Z,
+17,TC002,passed,2.5,0,,Mock execution completed,0.9995,HIGH,1,1,2026-09-15T18:28:13.830Z,
+18,TC004,passed,2.5,0,,Mock execution completed,0.9603,HIGH,1,2,2026-09-15T18:28:13.836Z,
+19,TC002,passed,2.5,0,,Mock execution completed,0.9995,HIGH,1,1,2026-09-15T19:30:17.658Z,
+20,TC004,passed,2.5,0,,Mock execution completed,0.9603,HIGH,1,2,2026-09-15T19:30:17.663Z,
+21,TC002,passed,2.5,0,,Mock execution completed,0.9995,HIGH,1,1,2026-09-15T19:30:17.673Z,
+22,TC004,passed,2.5,0,,Mock execution completed,0.9603,HIGH,1,2,2026-09-15T19:30:17.677Z,
+23,TC002,passed,2.5,0,,Mock execution completed,0.9995,HIGH,1,1,2026-09-15T19:50:17.895Z,
+24,TC004,passed,2.5,0,,Mock execution completed,0.9603,HIGH,1,2,2026-09-15T19:50:17.900Z,
+25,TC002,passed,2.5,0,,Mock execution completed,0.9995,HIGH,1,1,2026-09-15T19:50:17.971Z,
+26,TC004,passed,2.5,0,,Mock execution completed,0.9603,HIGH,1,2,2026-09-15T19:50:17.975Z,
+27,m3-stage2a-real,failed,84,0,,ECONNREFUSED connect ECONNREFUSED 127.0.0.1:8085,,,,,2026-09-20T18:02:55.131Z,2026-09-20T18:02:55.131Z
+28,m3-stage2a-real,failed,83,0,,ECONNREFUSED connect ECONNREFUSED 127.0.0.1:8085,,,,,2026-09-20T18:03:23.119Z,2026-09-20T18:03:23.119Z
+29,m3-stage2a-real,failed,58,0,,ECONNREFUSED connect ECONNREFUSED 127.0.0.1:8085,,,,,2026-09-20T18:34:07.793Z,2026-09-20T18:34:07.793Z
+30,TC-STAGE2A-REAL-001,passed,12108,0,,Selected test execution completed with status: passed,,,,,2026-09-20T21:38:34.525Z,2026-09-20T21:38:34.425Z
+31,TC-STAGE2A-REAL-001,passed,5348,0,,Selected test execution completed with status: passed,,,,,2026-09-20T21:39:17.814Z,2026-09-20T21:39:17.726Z
