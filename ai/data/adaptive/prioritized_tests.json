@@ -1,0 +1,32 @@
+{
+    "tests": [
+        {
+            "test_id": "TC-STAGE2A-REAL-001",
+            "failure_probability": 1.0,
+            "risk_level": "HIGH",
+            "prediction": 1,
+            "priority": 1
+        },
+        {
+            "test_id": "m3-stage2a-real",
+            "failure_probability": 0.9999994618519331,
+            "risk_level": "HIGH",
+            "prediction": 1,
+            "priority": 2
+        },
+        {
+            "test_id": "TC002",
+            "failure_probability": 0.023646915310148432,
+            "risk_level": "LOW",
+            "prediction": 0,
+            "priority": 3
+        },
+        {
+            "test_id": "TC004",
+            "failure_probability": 0.023646915310148432,
+            "risk_level": "LOW",
+            "prediction": 0,
+            "priority": 4
+        }
+    ]
+}
