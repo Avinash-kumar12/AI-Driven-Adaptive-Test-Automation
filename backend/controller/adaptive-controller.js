@@ -1,6 +1,8 @@
 const fs = require("fs");
 const path = require("path");
+const { pathToFileURL } = require("url");
 const db = require("../database");
+const testDefinitions = require("../data/test-definitions");
 
 const AI_OUTPUT_PATH = path.resolve(
     __dirname,
@@ -13,7 +15,7 @@ async function loadExecutor() {
         "../../automation/executor/ai-test-executor.mjs"
     );
 
-    return await import(executorPath);
+    return await import(pathToFileURL(executorPath).href);
 }
 
 function loadPredictions() {
@@ -36,6 +38,12 @@ function selectTests() {
         .sort((a, b) => a.priority - b.priority);
 }
 
+/*
+ * Adaptive execution path.
+ *
+ * Preserved from the existing M3 implementation:
+ * M2 prioritized tests -> M1 executor -> SQLite history.
+ */
 async function runSelectedTests() {
     const selectedTests = selectTests();
 
@@ -123,7 +131,72 @@ async function runSelectedTests() {
     return results;
 }
 
+/*
+ * Selected Test Definition execution path.
+ *
+ * Test Definition -> M1 dynamic executor -> Selenium -> result -> SQLite
+ *
+ * This path intentionally does NOT depend on M2 prioritized_tests.json.
+ */
+async function runSelectedTest(testId) {
+    const testDefinition = testDefinitions.find(
+        (test) => test.testId === testId
+    );
+
+    if (!testDefinition) {
+        throw new Error(
+            `Test definition not found: ${testId}`
+        );
+    }
+
+    const { executeDynamicTest } = await loadExecutor();
+
+    const executionResult =
+        await executeDynamicTest(testDefinition);
+
+    const result = {
+        ...executionResult,
+        message:
+            executionResult.error ??
+            `Selected test execution completed with status: ${executionResult.status}`
+    };
+
+    db.prepare(`
+        INSERT INTO execution_history (
+            testId,
+            status,
+            duration,
+            healed,
+            healingScore,
+            message,
+            failureProbability,
+            riskLevel,
+            prediction,
+            priority,
+            executedAt,
+            timestamp
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+        result.testId,
+        result.status,
+        result.duration,
+        result.healed ? 1 : 0,
+        result.healingScore,
+        result.message,
+        null,
+        null,
+        null,
+        null,
+        new Date().toISOString(),
+        result.timestamp
+    );
+
+    return result;
+}
+
 module.exports = {
     selectTests,
-    runSelectedTests
+    runSelectedTests,
+    runSelectedTest
 };
