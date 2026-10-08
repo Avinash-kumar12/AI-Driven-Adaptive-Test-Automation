@@ -16,7 +16,7 @@ const AI_OUTPUT_PATH = path.join(
     PROJECT_ROOT,
     "ai",
     "data",
-    "processed",
+    "adaptive",
     "prioritized_tests.json"
 );
 
@@ -201,7 +201,7 @@ export async function executePrioritizedTests() {
         );
 
         try {
-            const result = await runSingleTest(definition, testId);
+            const result = await runSingleTest(definition, test.test_id);
 
             const status = result.status;
 
