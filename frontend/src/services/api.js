@@ -19,6 +19,15 @@ export async function getTests() {
 
   return response.json();
 }
+export async function getTestDefinitions() {
+  const response = await fetch(`${API_URL}/api/tests/definitions`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch test definitions");
+  }
+
+  return response.json();
+}
 
 export async function getRiskRanking() {
   const response = await fetch(`${API_URL}/api/risk-ranking`);

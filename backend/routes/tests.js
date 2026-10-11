@@ -123,6 +123,10 @@ router.get("/", (req, res) => {
     res.json(testResults);
 });
 
+router.get("/definitions", (req, res) => {
+    res.json(testDefinitions);
+});
+
 /*
  * Test Definition creation endpoint.
  */
